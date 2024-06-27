@@ -5,7 +5,7 @@ def calc_min_run(array_len):
     """Returns the minimum of array_len and MIN_MERGE
     """
     r = 0
-    while array_len > MIN_MERGE:
+    while array_len >= MIN_MERGE:
         r |= array_len & 1
         array_len >>= 1
     return array_len + r
@@ -26,36 +26,36 @@ def merge(sorted_array, left, mid, right):
     # original array is separated in two parts
     # left and right array
     len_first, len_second = mid - left + 1, right - mid
-    left, right = [], []
+    left_part, right_part = [], []
     for index in range(0, len_first):
-        left.append(sorted_array[left + index])
+        left_part.append(sorted_array[left + index])
     for index in range(0, len_second):
-        right.append(sorted_array[mid + 1 + index])
+        right_part.append(sorted_array[mid + 1 + index])
 
     index, j, k = 0, 0, left
 
     # after comparing, we merge those two array
     # in larger sub array
     while index < len_first and j < len_second:
-        if left[index] <= right[j]:
-            sorted_array[k] = left[index]
+        if left_part[index] <= right_part[j]:
+            sorted_array[k] = left_part[index]
             index += 1
 
         else:
-            sorted_array[k] = right[j]
+            sorted_array[k] = right_part[j]
             j += 1
 
         k += 1
 
     # Copy remaining elements of left, if any
     while index < len_first:
-        sorted_array[k] = left[index]
+        sorted_array[k] = left_part[index]
         k += 1
         index += 1
 
     # Copy remaining element of right, if any
     while j < len_second:
-        sorted_array[k] = right[j]
+        sorted_array[k] = right_part[j]
         k += 1
         j += 1
 
@@ -64,6 +64,8 @@ def merge(sorted_array, left, mid, right):
 # array[0...n-1] (similar to merge sort)
 def tim_sort(sorted_array):
     length = len(sorted_array)
+    if length == 0:
+        return sorted_array
     min_run = calc_min_run(length)
 
     # Sort individual sub arrays of size RUN
@@ -96,13 +98,18 @@ def tim_sort(sorted_array):
 
 
 if __name__ == "__main__":
-    arr = [-2, 7, 15, -14, 0, 15, 0,
-           7, -7, -4, -13, 5, 8, -14, 12]
+    test_cases = [
+        ([2, 5, 8, -3, 0, 7], 0, 2, 5, [-3, 0, 2, 5, 7, 8]),
+        ([1, 1, 1, 1, 1, 1], 0, 2, 5, [1, 1, 1, 1, 1, 1]),
+        ([1, 2, 3, 4, 5, 6], 0, 2, 5, [1, 2, 3, 4, 5, 6]),
+        ([6, 5, 4, 3, 2, 1], 0, 2, 5, [1, 2, 3, 4, 5, 6]),
+        ([], 0, 0, 0, []),
+        ([1], 0, 0, 0, [1]),
+        ([4, 5, 6, 4, 5, 6], 0, 2, 5, [4, 4, 5, 5, 6, 6])
+    ]
 
-    print("Given Array is")
-    print(arr)
-
-    tim_sort(arr)
-
-    print("After Sorting Array is")
-    print(arr)
+    for arr, l, m, r, expected in test_cases:
+        tim_sort(arr)
+        print(f"Sorted array: {arr}, expected: {expected}")
+        assert arr == expected, f"Failed: {arr} != {expected}"
+    print("All test cases passed!")
